@@ -205,7 +205,7 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
       e.setAttribute("name", "generator");
       e.setAttribute(
         "content",
-        "https://github.com/io7m/zeptoblog; version=" + version());
+        "https://www.github.com/io7m-com/zeptoblog; version=" + version());
       return e;
     }
 

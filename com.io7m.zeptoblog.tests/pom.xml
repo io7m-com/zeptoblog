@@ -22,6 +22,7 @@
   <properties>
     <!-- Disable dependency analysis due to ServiceLoader -->
     <mdep.analyze.skip>true</mdep.analyze.skip>
+    <checkstyle.skip>true</checkstyle.skip>
   </properties>
 
   <dependencies>
