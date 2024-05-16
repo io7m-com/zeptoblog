@@ -34,6 +34,9 @@
     <io7m.api.previousVersion>0.4.0</io7m.api.previousVersion>
     <io7m.java.targetJavaVersion>21</io7m.java.targetJavaVersion>
 
+    <!-- io7m dependencies. -->
+    <com.io7m.quarrel.version>1.6.1</com.io7m.quarrel.version>
+
     <!-- Third-party dependencies. -->
     <io7m.org.immutables.version>2.10.1</io7m.org.immutables.version>
     <commonmark.version>0.22.0</commonmark.version>
@@ -115,6 +118,18 @@
         <version>4.0.1</version>
       </dependency>
 
+      <!-- CLI -->
+      <dependency>
+        <groupId>com.io7m.quarrel</groupId>
+        <artifactId>com.io7m.quarrel.core</artifactId>
+        <version>${com.io7m.quarrel.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.io7m.quarrel</groupId>
+        <artifactId>com.io7m.quarrel.ext.logback</artifactId>
+        <version>${com.io7m.quarrel.version}</version>
+      </dependency>
+
       <dependency>
         <groupId>org.commonmark</groupId>
         <artifactId>commonmark</artifactId>
@@ -125,22 +140,7 @@
         <artifactId>commonmark-ext-heading-anchor</artifactId>
         <version>${commonmark.version}</version>
       </dependency>
-      <dependency>
-        <groupId>org.osgi</groupId>
-        <artifactId>org.osgi.service.component.annotations</artifactId>
-        <version>1.5.1</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.osgi</groupId>
-        <artifactId>org.osgi.annotation.bundle</artifactId>
-        <version>2.0.0</version>
-      </dependency>
-      <dependency>
-        <groupId>org.osgi</groupId>
-        <artifactId>org.osgi.annotation.versioning</artifactId>
-        <version>1.1.2</version>
-      </dependency>
+
       <dependency>
         <groupId>io.vavr</groupId>
         <artifactId>vavr</artifactId>
@@ -169,11 +169,6 @@
         <version>1.5.6</version>
       </dependency>
       <dependency>
-        <groupId>com.beust</groupId>
-        <artifactId>jcommander</artifactId>
-        <version>1.82</version>
-      </dependency>
-      <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
         <version>2.16.1</version>
@@ -189,15 +184,31 @@
         <version>2.1.0</version>
       </dependency>
 
+      <!-- Build and metadata. -->
       <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-api</artifactId>
-        <version>${junit.version}</version>
+        <groupId>org.osgi</groupId>
+        <artifactId>org.osgi.service.component.annotations</artifactId>
+        <version>1.5.1</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-engine</artifactId>
+        <groupId>org.osgi</groupId>
+        <artifactId>org.osgi.annotation.bundle</artifactId>
+        <version>2.0.0</version>
+      </dependency>
+      <dependency>
+        <groupId>org.osgi</groupId>
+        <artifactId>org.osgi.annotation.versioning</artifactId>
+        <version>1.1.2</version>
+      </dependency>
+
+      <!-- Test suite. -->
+      <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
         <version>${junit.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>com.github.marschall</groupId>

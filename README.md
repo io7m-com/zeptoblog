@@ -69,7 +69,7 @@ be copied unmodified to the output directory.
 Compile the blog:
 
 ```
-$ java -jar com.io7m.zeptoblog.cmdline-0.2.0-main.jar compile -config blog.conf
+$ zeptoblog compile --file blog.conf
 ```
 
 Sign pages with `gpg`:
