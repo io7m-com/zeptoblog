@@ -1,5 +1,5 @@
 /*
- * Copyright © 2017 <code@io7m.com> http://io7m.com
+ * Copyright © 2017 Mark Raynsford <code@io7m.com> https://www.io7m.com
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,21 +14,28 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+import com.io7m.zeptoblog.commonmark.ZBlogPostFormatCommonMark;
+
 /**
  * Static blog generator (CommonMark format support)
  */
 
 module com.io7m.zeptoblog.commonmark
 {
+  requires static org.osgi.annotation.bundle;
+  requires static org.osgi.annotation.versioning;
   requires static org.osgi.service.component.annotations;
 
-  requires com.io7m.zeptoblog.core;
+  requires com.io7m.jlexing.core;
   requires com.io7m.junreachable.core;
-  requires org.commonmark;
-  requires org.commonmark.ext.heading.anchor;
+  requires com.io7m.zeptoblog.core;
   requires io.vavr;
   requires java.xml;
-  requires com.io7m.jlexing.core;
+  requires org.commonmark.ext.heading.anchor;
+  requires org.commonmark;
+
+  provides com.io7m.zeptoblog.core.ZBlogPostFormatType
+    with ZBlogPostFormatCommonMark;
 
   exports com.io7m.zeptoblog.commonmark;
 }

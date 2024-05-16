@@ -1,5 +1,5 @@
 /*
- * Copyright © 2017 <code@io7m.com> http://io7m.com
+ * Copyright © 2017 Mark Raynsford <code@io7m.com> https://www.io7m.com
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -16,15 +16,15 @@
 
 module com.io7m.zeptoblog.cmdline
 {
-  requires com.io7m.jproperties.core;
   requires com.io7m.zeptoblog.core;
-  requires io.vavr;
-  requires jcommander;
-  requires org.slf4j;
-  requires ch.qos.logback.classic;
-  requires com.io7m.junreachable.core;
 
-  opens com.io7m.zeptoblog.cmdline to jcommander;
+  requires ch.qos.logback.classic;
+  requires com.io7m.jproperties.core;
+  requires io.vavr;
+  requires org.slf4j;
+
+  requires com.io7m.quarrel.core;
+  requires com.io7m.quarrel.ext.logback;
 
   exports com.io7m.zeptoblog.cmdline;
 }

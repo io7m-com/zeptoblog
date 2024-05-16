@@ -1,5 +1,5 @@
 /*
- * Copyright © 2017 <code@io7m.com> http://io7m.com
+ * Copyright © 2024 Mark Raynsford <code@io7m.com> https://www.io7m.com
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,76 +14,88 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+
 package com.io7m.zeptoblog.cmdline;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.ParameterException;
-import com.beust.jcommander.Parameters;
-import java.util.Objects;
-import com.io7m.jproperties.JProperties;
-import com.io7m.zeptoblog.core.ZBlog;
-import com.io7m.zeptoblog.core.ZBlogConfiguration;
-import com.io7m.zeptoblog.core.ZBlogConfigurations;
-import com.io7m.zeptoblog.core.ZBlogParserProvider;
-import com.io7m.zeptoblog.core.ZBlogParserProviderType;
-import com.io7m.zeptoblog.core.ZBlogParserType;
-import com.io7m.zeptoblog.core.ZBlogPostFormatResolverSL;
-import com.io7m.zeptoblog.core.ZBlogPostGeneratorExecutor;
-import com.io7m.zeptoblog.core.ZBlogPostGeneratorExecutorType;
-import com.io7m.zeptoblog.core.ZBlogPostGeneratorResolverSL;
-import com.io7m.zeptoblog.core.ZBlogRendererProvider;
-import com.io7m.zeptoblog.core.ZBlogRendererProviderType;
-import com.io7m.zeptoblog.core.ZBlogRendererType;
-import com.io7m.zeptoblog.core.ZError;
-import io.vavr.collection.Seq;
-import io.vavr.control.Validation;
+import com.io7m.quarrel.core.QApplication;
+import com.io7m.quarrel.core.QApplicationMetadata;
+import com.io7m.quarrel.core.QApplicationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.Callable;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
- * Command-line frontend.
+ * The main entry point.
  */
 
 public final class ZBlogMain implements Runnable
 {
-  private static final Logger LOG;
+  private static final Logger LOG =
+    LoggerFactory.getLogger(ZBlogMain.class);
 
-  static {
-    LOG = LoggerFactory.getLogger(ZBlogMain.class);
+  private final List<String> args;
+  private final QApplicationType application;
+  private int exitCode;
+
+  /**
+   * The main entry point.
+   *
+   * @param inArgs Command-line arguments
+   */
+
+  public ZBlogMain(
+    final String[] inArgs)
+  {
+    this.args =
+      Objects.requireNonNull(List.of(inArgs), "Command line arguments");
+
+    final var metadata =
+      new QApplicationMetadata(
+        "zeptoblog",
+        "com.io7m.zeptoblog",
+        version(),
+        build(),
+        "The looseleaf server.",
+        Optional.of(URI.create("https://www.io7m.com/software/zeptoblog/"))
+      );
+
+    final var builder = QApplication.builder(metadata);
+    builder.allowAtSyntax(true);
+    builder.addCommand(new ZBlogCmdCompile());
+    builder.addCommand(new ZBlogCmdFormats());
+    builder.addCommand(new ZBlogCmdGenerators());
+
+    this.application = builder.build();
+    this.exitCode = 0;
   }
 
-  private final Map<String, CommandType> commands;
-  private final JCommander commander;
-  private final String[] args;
-  private int exit_code;
-
-  private ZBlogMain(
-    final String[] in_args)
+  private static String build()
   {
-    this.args = Objects.requireNonNull(in_args);
+    // CHECKSTYLE:OFF
+    try (var st = ZBlogMain.class.getResourceAsStream(
+      "/com/io7m/zeptoblog/cmdline/build.txt")) {
+      return new String(st.readAllBytes(), StandardCharsets.UTF_8).trim();
+    } catch (final Exception e) {
+      return "UNKNOWN";
+    }
+    // CHECKSTYLE:ON
+  }
 
-    final CommandRoot r = new CommandRoot();
-    final CommandCompile compile = new CommandCompile();
-    final CommandFormats formats = new CommandFormats();
-    final CommandGenerators generators = new CommandGenerators();
-
-    this.commands = new HashMap<>(8);
-    this.commands.put("compile", compile);
-    this.commands.put("formats", formats);
-    this.commands.put("generators", generators);
-
-    this.commander = new JCommander(r);
-    this.commander.setProgramName("zeptoblog");
-    this.commander.addCommand("compile", compile);
-    this.commander.addCommand("formats", formats);
-    this.commander.addCommand("generators", generators);
+  private static String version()
+  {
+    // CHECKSTYLE:OFF
+    try (var st = ZBlogMain.class.getResourceAsStream(
+      "/com/io7m/zeptoblog/cmdline/version.txt")) {
+      return new String(st.readAllBytes(), StandardCharsets.UTF_8).trim();
+    } catch (final Exception e) {
+      return "0.0.0";
+    }
+    // CHECKSTYLE:ON
   }
 
   /**
@@ -92,18 +104,26 @@ public final class ZBlogMain implements Runnable
    * @param args Command line arguments
    */
 
-  public static void main(final String[] args)
+  public static void main(
+    final String[] args)
+  {
+    System.exit(mainExitless(args));
+  }
+
+  /**
+   * The main (exitless) entry point.
+   *
+   * @param args Command line arguments
+   *
+   * @return The exit code
+   */
+
+  public static int mainExitless(
+    final String[] args)
   {
     final ZBlogMain cm = new ZBlogMain(args);
     cm.run();
-    System.exit(cm.exitCode());
-  }
-
-  private static void show(
-    final ZError error)
-  {
-    LOG.error(error.show());
-    error.error().ifPresent(ex -> LOG.error("exception: ", ex));
+    return cm.exitCode();
   }
 
   /**
@@ -112,172 +132,21 @@ public final class ZBlogMain implements Runnable
 
   public int exitCode()
   {
-    return this.exit_code;
+    return this.exitCode;
   }
 
   @Override
   public void run()
   {
-    try {
-      this.commander.parse(this.args);
-
-      final String cmd = this.commander.getParsedCommand();
-      if (cmd == null) {
-        final StringBuilder sb = new StringBuilder(128);
-        this.commander.usage();
-        LOG.info("Arguments required.\n{}", sb.toString());
-        return;
-      }
-
-      final CommandType command = this.commands.get(cmd);
-      command.call();
-
-    } catch (final ParameterException e) {
-      LOG.error("error: ", e);
-      this.commander.usage();
-      this.exit_code = 1;
-    } catch (final Exception e) {
-      LOG.error("{}", e.getMessage(), e);
-      this.exit_code = 1;
-    }
+    this.exitCode = this.application.run(LOG, this.args).exitCode();
   }
 
-  private interface CommandType extends Callable<Void>
+  @Override
+  public String toString()
   {
-
-  }
-
-  private class CommandRoot implements CommandType
-  {
-    @Parameter(
-      names = "-verbose",
-      converter = ZLogLevelConverter.class,
-      description = "Set the minimum logging verbosity level")
-    private ZLogLevel verbose = ZLogLevel.LOG_INFO;
-
-    CommandRoot()
-    {
-
-    }
-
-    @Override
-    public Void call()
-      throws Exception
-    {
-      final ch.qos.logback.classic.Logger root =
-        (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(
-          Logger.ROOT_LOGGER_NAME);
-      root.setLevel(this.verbose.toLevel());
-      return null;
-    }
-  }
-
-  @Parameters(commandDescription = "List supported post formats")
-  private final class CommandFormats extends CommandRoot
-  {
-    CommandFormats()
-    {
-
-    }
-
-    @Override
-    public Void call()
-      throws Exception
-    {
-      super.call();
-
-      new ZBlogPostFormatResolverSL().available().forEach(
-        p -> System.out.printf("%-32s : %s\n", p.name(), p.description()));
-      return null;
-    }
-  }
-
-  @Parameters(commandDescription = "List supported page generators")
-  private final class CommandGenerators extends CommandRoot
-  {
-    CommandGenerators()
-    {
-
-    }
-
-    @Override
-    public Void call()
-      throws Exception
-    {
-      super.call();
-
-      new ZBlogPostGeneratorResolverSL().available().forEach(
-        p -> System.out.printf("%-32s : %s\n", p.name(), p.description()));
-      return null;
-    }
-  }
-
-  @Parameters(commandDescription = "Compile a blog")
-  private final class CommandCompile extends CommandRoot
-  {
-    @Parameter(
-      names = "-config",
-      required = true,
-      description = "The configuration file")
-    private String config_file_in;
-
-    CommandCompile()
-    {
-
-    }
-
-
-    @Override
-    public Void call()
-      throws Exception
-    {
-      super.call();
-
-      final File config_file =
-        new File(this.config_file_in);
-      final Properties config_props =
-        JProperties.fromFile(config_file);
-      final Validation<Seq<ZError>, ZBlogConfiguration> cr =
-        ZBlogConfigurations.fromProperties(config_file.toPath(), config_props);
-
-      if (!cr.isValid()) {
-        ZBlogMain.this.exit_code = 1;
-        cr.getError().forEach(ZBlogMain::show);
-      }
-
-      final ZBlogConfiguration config = cr.get();
-      final ZBlogPostGeneratorExecutorType exec = new ZBlogPostGeneratorExecutor();
-      final Validation<Seq<ZError>, Void> er = exec.executeAll(config);
-      if (!er.isValid()) {
-        ZBlogMain.this.exit_code = 1;
-        er.getError().forEach(ZBlogMain::show);
-        return null;
-      }
-
-      final ZBlogParserProviderType blog_provider = new ZBlogParserProvider();
-      final ZBlogParserType blog_parser = blog_provider.createParser(config);
-      final Validation<Seq<ZError>, ZBlog> br = blog_parser.parse();
-      if (!br.isValid()) {
-        ZBlogMain.this.exit_code = 1;
-        br.getError().forEach(ZBlogMain::show);
-        return null;
-      }
-
-      final ZBlogRendererProviderType blog_writer_provider =
-        new ZBlogRendererProvider();
-      final ZBlogRendererType blog_writer =
-        blog_writer_provider.createRenderer(config);
-
-      final ZBlog blog = br.get();
-      final Validation<Seq<ZError>, Void> wr = blog_writer.render(blog);
-      if (!wr.isValid()) {
-        ZBlogMain.this.exit_code = 1;
-        wr.getError().forEach(ZBlogMain::show);
-        return null;
-      }
-
-      LOG.debug("done");
-      return null;
-    }
+    return String.format(
+      "[ZBlogMain 0x%s]",
+      Long.toUnsignedString(System.identityHashCode(this), 16)
+    );
   }
 }

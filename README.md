@@ -1,20 +1,19 @@
 zeptoblog
 ===
 
-[![Build Status](https://img.shields.io/travis/io7m/zeptoblog.svg?style=flat-square)](https://travis-ci.org/io7m/zeptoblog)
-[![Maven Central](https://img.shields.io/maven-central/v/com.io7m.zeptoblog/zeptoblog.svg?style=flat-square)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.io7m.zeptoblog%22)
-[![Maven Central (snapshot)](https://img.shields.io/nexus/s/https/oss.sonatype.org/com.io7m.zeptoblog/com.io7m.zeptoblog.svg?style=flat-square)](https://oss.sonatype.org/content/repositories/snapshots/com/io7m/zeptoblog/)
-[![Codacy Badge](https://img.shields.io/codacy/grade/6589f45ce9894044b13940a85aaf555c.svg?style=flat-square)](https://www.codacy.com/app/github_79/zeptoblog?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=io7m/zeptoblog&amp;utm_campaign=Badge_Grade)
-[![Codecov](https://img.shields.io/codecov/c/github/io7m/zeptoblog.svg?style=flat-square)](https://codecov.io/gh/io7m/zeptoblog)
+[![Maven Central](https://img.shields.io/maven-central/v/com.io7m.zeptoblog/com.io7m.zeptoblog.svg?style=flat-square)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.io7m.zeptoblog%22)
+[![Maven Central (snapshot)](https://img.shields.io/nexus/s/com.io7m.zeptoblog/com.io7m.zeptoblog?server=https%3A%2F%2Fs01.oss.sonatype.org&style=flat-square)](https://s01.oss.sonatype.org/content/repositories/snapshots/com/io7m/zeptoblog/)
+[![Codecov](https://img.shields.io/codecov/c/github/io7m-com/zeptoblog.svg?style=flat-square)](https://codecov.io/gh/io7m-com/zeptoblog)
+![Java Version](https://img.shields.io/badge/21-java?label=java&color=e6c35c)
 
-![zeptoblog](./src/site/resources/zeptoblog.jpg?raw=true)
+![com.io7m.zeptoblog](./src/site/resources/zeptoblog.jpg?raw=true)
 
-## Contents
-
-* [Usage](#usage)
-* [Page Syntax](#page-syntax)
-* [Supported Formats](#supported-formats)
-* [Real-world Examples](#real-world-examples)
+| JVM | Platform | Status |
+|-----|----------|--------|
+| OpenJDK (Temurin) Current | Linux | [![Build (OpenJDK (Temurin) Current, Linux)](https://img.shields.io/github/actions/workflow/status/io7m-com/zeptoblog/main.linux.temurin.current.yml)](https://www.github.com/io7m-com/zeptoblog/actions?query=workflow%3Amain.linux.temurin.current)|
+| OpenJDK (Temurin) LTS | Linux | [![Build (OpenJDK (Temurin) LTS, Linux)](https://img.shields.io/github/actions/workflow/status/io7m-com/zeptoblog/main.linux.temurin.lts.yml)](https://www.github.com/io7m-com/zeptoblog/actions?query=workflow%3Amain.linux.temurin.lts)|
+| OpenJDK (Temurin) Current | Windows | [![Build (OpenJDK (Temurin) Current, Windows)](https://img.shields.io/github/actions/workflow/status/io7m-com/zeptoblog/main.windows.temurin.current.yml)](https://www.github.com/io7m-com/zeptoblog/actions?query=workflow%3Amain.windows.temurin.current)|
+| OpenJDK (Temurin) LTS | Windows | [![Build (OpenJDK (Temurin) LTS, Windows)](https://img.shields.io/github/actions/workflow/status/io7m-com/zeptoblog/main.windows.temurin.lts.yml)](https://www.github.com/io7m-com/zeptoblog/actions?query=workflow%3Amain.windows.temurin.lts)|
 
 ## Usage
 
@@ -70,7 +69,7 @@ be copied unmodified to the output directory.
 Compile the blog:
 
 ```
-$ java -jar com.io7m.zeptoblog.cmdline-0.3.0-main.jar compile -config blog.conf
+$ zeptoblog compile --file blog.conf
 ```
 
 Sign pages with `gpg`:
@@ -81,101 +80,7 @@ $ find /tmp/blog-out -name '*.xhtml' -type f -exec gpg -a --detach-sign -u 'my k
 
 Use [rsync](https://rsync.samba.org/) to copy `/tmp/blog-out` to a site.
 
-## Page Syntax
-
-A `zbp` file has the following syntax (given in [EBNF](https://en.wikipedia.org/wiki/Extended_Backus-Naur_form)):
-
-```
-text =
-  ? any unicode text not including newlines ? ;
-
-digit =
-  "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
-
-newline =
-  ( U+000D , U+000A ) | U+000A ;
-
-year =
-  digit , digit , digit , { digit } ;
-
-month =
-  digit , digit ;
-
-day =
-  digit , digit ;
-
-hour =
-  digit , digit ;
-
-minute =
-  digit , digit ;
-
-second =
-  digit , digit ;
-
-offset =
-  ( "+" | "-" ) , digit , digit , digit , digit ;
-
-timestamp =
-  year , "-" , month , "-" , day , "T" , hour , ":" , minute , ":" , second , offset ;
-
-title_command =
-  "title" , { text } , newline ;
-
-date_command =
-  "date" , timestamp , newline ;
-
-format_name =
-  { (? any unicode letter and number ?) | "." } ;
-
-format_command =
-  "format" , format_name , newline ;
-
-header =
-  { title_command | date_command | format_command } ;
-
-body =
-  { text | newline } ;
-
-zbp =
-  header , newline , body ;
-```
-
-The `title` command sets the title for a post.
-The `date` command sets the date for a post. If no date is specified, then the post will not
-appear in any listings of posts such as the generated "posts by year" page.
-The `format` command specifies the [format](#supported-formats) of the body of the post.
-
-```
-title An XHTML post
-date 2017-03-06T13:25:16+0000
-format com.io7m.zeptoblog.xhtml
-
-<div>
-  <p>An XHTML post.</p>
-</div>
-```
-
-## Supported Formats
-
-By default, the `zeptoblog` distribution supports the following formats:
-
-| Format                        | Description                          |
-| ----------------------------- | ------------------------------------ |
-| com.io7m.zeptoblog.commonmark | [CommonMark](https://commonmark.org) |
-| com.io7m.zeptoblog.xhtml      | XHTML                                |
-
-Additional formats can be implemented by implementing the [ZBlogPostFormatType](https://github.com/io7m/zeptoblog/blob/develop/com.io7m.zeptoblog.core/src/main/java/com/io7m/zeptoblog/core/ZBlogPostFormatType.java)
-and registering the implementation as a [service provider](https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html).
-
-The detected formats can be listed from the command line:
-
-```
-$ java -jar com.io7m.zeptoblog.cmdline-0.3.0-main.jar formats
-com.io7m.zeptoblog.xhtml         : XHTML 1.0 Strict
-com.io7m.zeptoblog.commonmark    : http://commonmark.org 0.27
-```
-
 ## Real-world Examples
 
-http://blog.io7m.com
+https://blog.io7m.com
+

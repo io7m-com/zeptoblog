@@ -1,5 +1,5 @@
 /*
- * Copyright © 2017 <code@io7m.com> http://io7m.com
+ * Copyright © 2017 Mark Raynsford <code@io7m.com> https://www.io7m.com
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -205,7 +205,7 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
       e.setAttribute("name", "generator");
       e.setAttribute(
         "content",
-        "https://github.com/io7m/zeptoblog; version=" + version());
+        "https://www.github.com/io7m-com/zeptoblog; version=" + version());
       return e;
     }
 
