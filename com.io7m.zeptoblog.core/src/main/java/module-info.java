@@ -15,6 +15,7 @@
  */
 
 import com.io7m.zeptoblog.core.ZBlogPostFormatType;
+import com.io7m.zeptoblog.core.ZBlogPostFormatXHTML;
 import com.io7m.zeptoblog.core.ZBlogPostGeneratorType;
 
 /**
@@ -41,6 +42,9 @@ module com.io7m.zeptoblog.core
 
   uses ZBlogPostFormatType;
   uses ZBlogPostGeneratorType;
+
+  provides ZBlogPostFormatType
+    with ZBlogPostFormatXHTML;
 
   exports com.io7m.zeptoblog.core;
 }

@@ -47,6 +47,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -214,12 +215,18 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
       final String title)
     {
       final Element e = document.createElementNS(XHTML_URI_TEXT, "head");
+      e.appendChild(newLine(document));
       e.appendChild(metaType(document));
+      e.appendChild(newLine(document));
+      e.appendChild(metaViewport(document));
+      e.appendChild(newLine(document));
       e.appendChild(metaGenerator(document));
+      e.appendChild(newLine(document));
 
       final Element e_title = document.createElementNS(XHTML_URI_TEXT, "title");
       e_title.setTextContent(title);
       e.appendChild(e_title);
+      e.appendChild(newLine(document));
 
       {
         final Element e_link = document.createElementNS(XHTML_URI_TEXT, "link");
@@ -227,6 +234,7 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
         e_link.setAttribute("type", "text/css");
         e_link.setAttribute("href", "/reset.css");
         e.appendChild(e_link);
+        e.appendChild(newLine(document));
       }
 
       {
@@ -235,6 +243,7 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
         e_link.setAttribute("type", "text/css");
         e_link.setAttribute("href", "/style.css");
         e.appendChild(e_link);
+        e.appendChild(newLine(document));
       }
 
       {
@@ -243,8 +252,24 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
         e_link.setAttribute("type", "application/atom+xml");
         e_link.setAttribute("href", "/blog.atom");
         e.appendChild(e_link);
+        e.appendChild(newLine(document));
       }
 
+      return e;
+    }
+
+    private static Text newLine(
+      final Document document)
+    {
+      return document.createTextNode("\n");
+    }
+
+    private static Node metaViewport(
+      final Document document)
+    {
+      final Element e = document.createElementNS(XHTML_URI_TEXT, "meta");
+      e.setAttribute("name", "viewport");
+      e.setAttribute("content", "width=device-width, initial-scale=1.0");
       return e;
     }
 
@@ -341,8 +366,12 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
 
       final Element e_footer = this.footer(document, current_file);
       e.appendChild(e_head);
+      e.appendChild(newLine(document));
       e.appendChild(e_content);
+      e.appendChild(newLine(document));
       e.appendChild(e_footer);
+      e.appendChild(newLine(document));
+      e.appendChild(newLine(document));
       return e;
     }
 
@@ -424,9 +453,12 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
       root.setAttribute("xml:lang", "en");
       doc.appendChild(root);
 
+      root.appendChild(newLine(doc));
       root.appendChild(head(doc, title));
+      root.appendChild(newLine(doc));
       final Element body = this.body(doc, current_file);
       root.appendChild(body);
+      root.appendChild(newLine(doc));
 
       final Element head;
       if (this.header_replace.isPresent()) {
@@ -449,7 +481,7 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
             head.getOwnerDocument().importNode(element, true));
         });
 
-      final Element foot = (Element) body.getChildNodes().item(2);
+      final Element foot = findFooter(body);
       this.footer_pre.ifPresent(
         element -> {
           foot.insertBefore(
@@ -462,7 +494,39 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
             foot.getOwnerDocument().importNode(element, true));
         });
 
-      return new Page(doc, head, (Element) body.getChildNodes().item(1), foot);
+      final Element content = findContent(body);
+      return new Page(doc, head, content, foot);
+    }
+
+    private static Element findContent(
+      final Element body)
+    {
+      final var childNodes = body.getChildNodes();
+      for (int index = 0; index < childNodes.getLength(); ++index) {
+        final var node = childNodes.item(index);
+        if (node instanceof final Element element) {
+          if (element.getAttribute("class").contains("zb_body")) {
+            return element;
+          }
+        }
+      }
+
+      throw new IllegalStateException("Could not find body!");
+    }
+
+    private static Element findFooter(final Element body)
+    {
+      final var childNodes = body.getChildNodes();
+      for (int index = 0; index < childNodes.getLength(); ++index) {
+        final var node = childNodes.item(index);
+        if (node instanceof final Element element) {
+          if (element.getAttribute("class").contains("zb_footer")) {
+            return element;
+          }
+        }
+      }
+
+      throw new IllegalStateException("Could not find footer!");
     }
 
     @Override
@@ -708,6 +772,8 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
 
             for (final ZBlogPost post : pair._2) {
               page.content.appendChild(this.writePost(page.document, post));
+              page.content.appendChild(newLine(page.document));
+              page.content.appendChild(newLine(page.document));
             }
 
             page.footer.insertBefore(
