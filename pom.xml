@@ -35,7 +35,7 @@
     <io7m.java.targetJavaVersion>21</io7m.java.targetJavaVersion>
 
     <!-- io7m dependencies. -->
-    <com.io7m.quarrel.version>1.6.1</com.io7m.quarrel.version>
+    <com.io7m.quarrel.version>1.8.0</com.io7m.quarrel.version>
 
     <!-- Third-party dependencies. -->
     <io7m.org.immutables.version>2.10.1</io7m.org.immutables.version>
