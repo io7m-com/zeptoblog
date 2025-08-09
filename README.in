@@ -1,4 +1,8 @@
 
+## zeptoblog
+
+A small static blog generator.
+
 ## Usage
 
 Create a configuration file (in [Java properties](https://docs.oracle.com/javase/8/docs/api/java/util/Properties.html) format):
@@ -66,4 +70,5 @@ Use [rsync](https://rsync.samba.org/) to copy `/tmp/blog-out` to a site.
 
 ## Real-world Examples
 
-https://blog.io7m.com
+[https://blog.io7m.com](https://blog.io7m.com)
+

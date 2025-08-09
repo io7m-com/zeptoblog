@@ -15,6 +15,10 @@ zeptoblog
 | OpenJDK (Temurin) Current | Windows | [![Build (OpenJDK (Temurin) Current, Windows)](https://img.shields.io/github/actions/workflow/status/io7m-com/zeptoblog/main.windows.temurin.current.yml)](https://www.github.com/io7m-com/zeptoblog/actions?query=workflow%3Amain.windows.temurin.current)|
 | OpenJDK (Temurin) LTS | Windows | [![Build (OpenJDK (Temurin) LTS, Windows)](https://img.shields.io/github/actions/workflow/status/io7m-com/zeptoblog/main.windows.temurin.lts.yml)](https://www.github.com/io7m-com/zeptoblog/actions?query=workflow%3Amain.windows.temurin.lts)|
 
+## zeptoblog
+
+A small static blog generator.
+
 ## Usage
 
 Create a configuration file (in [Java properties](https://docs.oracle.com/javase/8/docs/api/java/util/Properties.html) format):
@@ -82,5 +86,6 @@ Use [rsync](https://rsync.samba.org/) to copy `/tmp/blog-out` to a site.
 
 ## Real-world Examples
 
-https://blog.io7m.com
+[https://blog.io7m.com](https://blog.io7m.com)
+
 
