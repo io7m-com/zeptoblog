@@ -314,23 +314,33 @@ public final class ZBlogRendererProvider implements ZBlogRendererProviderType
       final Tuple2<Integer, Seq<ZBlogPost>> page_current,
       final SortedMap<Integer, Seq<ZBlogPost>> pages)
     {
-      final Element e_pages = document.createElementNS(XHTML_URI_TEXT, "div");
+      final var e_pages = document.createElementNS(XHTML_URI_TEXT, "div");
       e_pages.setTextContent("Posts by page: ");
-      for (final Tuple2<Integer, Seq<ZBlogPost>> pair : pages) {
-        final int page_human = pair._1.intValue() + 1;
+      e_pages.setAttribute("class", "zb_posts_by_year_container");
 
+      final var e_list = document.createElementNS(XHTML_URI_TEXT, "ul");
+      e_list.setAttribute("class", "zb_posts_by_year");
+
+      for (final var pair : pages) {
+        final int page_human =
+          pair._1.intValue() + 1;
+        final var e_item =
+          document.createElementNS(XHTML_URI_TEXT, "li");
+
+        e_list.appendChild(e_item);
         if (Objects.equals(page_current._1, pair._1)) {
-          e_pages.appendChild(document.createTextNode(Integer.toString(
-            page_human)));
+          e_item.appendChild(
+            document.createTextNode(Integer.toString(page_human))
+          );
         } else {
           final Element e_a = document.createElementNS(XHTML_URI_TEXT, "a");
           e_a.setAttribute("href", "/" + page_human + ".xhtml");
           e_a.setTextContent(Integer.toString(page_human));
-          e_pages.appendChild(e_a);
+          e_item.appendChild(e_a);
         }
-        e_pages.appendChild(document.createTextNode(" "));
       }
 
+      e_pages.appendChild(e_list);
       return e_pages;
     }
 

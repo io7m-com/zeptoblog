@@ -75,3 +75,26 @@ td
 {
 
 }
+
+ul.zb_posts_by_year
+{
+  display: grid;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  grid-template-columns: repeat(10, 1fr);
+  margin-top: 1em;
+}
+
+.zb_posts_by_year li
+{
+  border: 1px solid #aaa;
+  padding: 0;
+  margin: 0;
+  text-align: center;
+}
+
+.zb_posts_by_year_container
+{
+  margin-top: 1em;
+}
