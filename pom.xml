@@ -38,7 +38,7 @@
     <com.io7m.quarrel.version>1.8.0</com.io7m.quarrel.version>
 
     <!-- Third-party dependencies. -->
-    <io7m.org.immutables.version>2.11.3</io7m.org.immutables.version>
+    <io7m.org.immutables.version>2.11.4</io7m.org.immutables.version>
     <commonmark.version>0.25.1</commonmark.version>
     <junit.version>5.13.4</junit.version>
   </properties>
